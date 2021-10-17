@@ -11,6 +11,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/libs/gemmlowp
     ${CMAKE_SOURCE_DIR}/libs/ruy
     ${CMAKE_SOURCE_DIR}/enc/inc
+    ${CMAKE_SOURCE_DIR}/common
     ${TENSORFLOW_LITE_INC}
 )
 
@@ -27,7 +28,7 @@ add_custom_command(
 
 add_enclave(
   TARGET oeml_enclave
-  UUID 5d286b7e-ff68-4b4b-b7b8-05f55dbfd0c7
+  UUID 1f574668-6c89-41b5-b313-4b2d85d63c9d
     SOURCES
     enc.cc
     oeml_model_data.cc

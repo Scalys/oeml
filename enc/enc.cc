@@ -21,6 +21,7 @@
 
 #include "misc.h"
 #include "oeml_model_data.h"
+#include "common.h"
 
 
 const size_t tensor_arena_len = 10485760;
@@ -128,24 +129,30 @@ oe_result_t infer(struct tflite_model *tf, uint8_t *img, size_t w, size_t h, siz
 		return OE_FAILURE;
     }
 
-	size_t out_dims = 3;
-	double out[3];
-    for (int i = 0; i < 3; i++) {
+	const size_t out_dims = 4;
+	double out[out_dims];
+    for (int i = 0; i < out_dims; i++) {
         dbg("raw-out[%d]: %f", i, output->data.f[i]);
     }
 	softmax(output->data.f, out, out_dims);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < out_dims; i++) {
         dbg("final[%d]: %f", i, out[i]);
     }
 
-	if (out[0] > 0.9)
-		ocall_class_result(&ret, 1, out[0]);
-	else if (out[1] > 0.9)
-		ocall_class_result(&ret, 2, out[1]);
-	else if (out[2] > 0.9)
-		ocall_class_result(&ret, 3, out[2]);
+	/* Arm */
+	if (out[0] > 0.95)
+		ocall_class_result(&ret, LOGO_ARM, out[0]);
+	/* Microsoft */
+	else if (out[1] > 0.95)
+		ocall_class_result(&ret, LOGO_MSFT, out[1]);
+	/* Non-class */
+	else if (out[2] > 0.95)
+		ocall_class_result(&ret, LOGO_NONE, out[2]);
+	/* Scalys */
+	else if (out[3] > 0.95)
+		ocall_class_result(&ret, LOGO_SCALYS, out[3]);
 	else
-		ocall_class_result(&ret, 0, 0);
+		ocall_class_result(&ret, LOGO_NONE, 0);
 
 	return OE_OK;
 }
@@ -167,12 +174,11 @@ void softmax(float *arr, double *arr_out, size_t size)
 }
 
 
-
 #define TA_UUID                                            \
-    { /* 5d286b7e-ff68-4b4b-b7b8-05f55dbfd0c7 */           \
-        0x5d286b7e, 0xff68, 0x4b4b,                        \
+    { /* 1f574668-6c89-41b5-b313-4b2d85d63c9d */           \
+        0x1f574668, 0x6c89, 0x41b5,                        \
         {                                                  \
-            0xb7, 0xb8, 0x05, 0xf5, 0x5d, 0xbf, 0xd0, 0xc7 \
+            0xb3, 0x13, 0x4d, 0x2d, 0x85, 0xd6, 0x3c, 0x9d \
         }                                                  \
     }
 
@@ -182,4 +188,4 @@ OE_SET_ENCLAVE_OPTEE(
     16 * 1024,                // STACK_SIZE
     0,                        // FLAGS
     "1.0.0",                  // VERSION
-    "EnclaveFibonacci")       // DESCRIPTION
+    "oeml")                   // DESCRIPTION

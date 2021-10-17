@@ -11,10 +11,12 @@ add_custom_command(
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/libs
+    ${CMAKE_SOURCE_DIR}/common
 )
 
 add_executable(oeml
     host.cc
+    capture.cc
     main.cc
     ${CMAKE_CURRENT_BINARY_DIR}/oeml_u.c)
 
