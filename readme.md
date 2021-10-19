@@ -3,14 +3,16 @@
 This demo performs a confidential machine learning inference within OpenEnclave.
 This project is a part of a  [Blueprint for a Confidential Computing at the Edge](https://github.com/Azure-Samples/Project_Confidential_Apps_for_IoT_with_Enclaves).
 
+<img src="./docs/images/oeml-demo.jpg" alt="OpenEnclave demo" width="640">
+
 The main function of the application is to perform an image classification
 between three companies logo images ([Scalys](https://scalys.com), [Arm](https://www.arm.com) and [Microsoft](https://www.microsoft.com)). It can work
 both in a single shot mode clasifying an image file and in a video stream capture mode.
 
 # Hardware platform
 
-Demo setup consists of [TrustBox Edge 201](https://scalys.com/trustbox-edge-201/) and an optional usb camera for trying
-out streamed operation mode.
+Demo setup consists of a [TrustBox Edge 201](https://scalys.com/trustbox-edge-201/) and an optional usb camera for trying
+out streamed operation mode. Though it also works on the other devices from the TrustBox Edge line.
 
 Demo is built and tested with web camera Logitech C270. Potentially any generic
 USB camera should  work, but reliable functioning is only tested on C270. Other
