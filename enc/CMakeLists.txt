@@ -1,9 +1,6 @@
 # Copyright (c) Open Enclave SDK contributors.
 # Licensed under the MIT License.
 
-link_directories("/home/haff/poky_sdk/tmp/sysroots/trustbox/usr/lib/aarch64-poky-linux/9.3.0")
-set(TENSORFLOW_LITE_DIR "/home/haff/work/trustbox/openenclave-sdk-builder/packages/oeml/libs/tensorflow")
-
 include(../cmake/add-enclave.cmake)
 
 include_directories(
@@ -12,7 +9,13 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/libs/ruy
     ${CMAKE_SOURCE_DIR}/enc/inc
     ${CMAKE_SOURCE_DIR}/common
-    ${TENSORFLOW_LITE_INC}
+    ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro/third_party/flatbuffers/include
+    ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro/third_party/gemmlowp
+    ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro/third_party/kissfft
+    ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro/third_party/pigweed
+    ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro/third_party/ruy
+    ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro
+#    ${TENSORFLOW_LITE_INC}
 )
 
 add_custom_command(
@@ -21,10 +24,10 @@ add_custom_command(
     oeml_t.c
     oeml_args.h
   DEPENDS ${CMAKE_SOURCE_DIR}/oeml.edl
-  COMMAND openenclave::oeedger8r --trusted ${CMAKE_SOURCE_DIR}/oeml.edl --search-path /opt/openenclave-sdk/sdk/optee/ls-ls1012grapeboard/include --search-path /opt/openenclave-sdk/sdk/optee/ls-ls1012grapeboard/include/openenclave/edl --search-path /opt/openenclave-sdk/sdk/optee/ls-ls1012grapeboard/include/openenclave/edl/optee)
-
-#add_library(Tensorflow_lite_micro STATIC ${TENSORFLOW_LITE_SRC})
-#set_target_properties(Tensorflow_lite_micro PROPERTIES LINKER_LANGUAGE CXX)
+  COMMAND openenclave::oeedger8r --trusted ${CMAKE_SOURCE_DIR}/oeml.edl
+  --search-path ${PKG_CONFIG_SYSROOT_DIR}/opt/oe/${OE_OPTEE_PLATFORM}/include
+  --search-path ${PKG_CONFIG_SYSROOT_DIR}/opt/oe/${OE_OPTEE_PLATFORM}/include/openenclave/edl
+  --search-path ${PKG_CONFIG_SYSROOT_DIR}/opt/oe/${OE_OPTEE_PLATFORM}/include/openenclave/edl/optee)
 
 add_enclave(
   TARGET oeml_enclave
@@ -39,6 +42,7 @@ target_compile_options(oeml_enclave
 )
 
 target_link_libraries(oeml_enclave
-	/home/haff/work/trustbox/openenclave-sdk-builder/tflite-micro/tensorflow/lite/micro/tools/make/gen/linux_aarch64_debug/lib/libtensorflow-microlite.a
+  ${PKG_CONFIG_SYSROOT_DIR}/opt/tflite-micro/tensorflow/lite/micro/tools/make/gen/linux_aarch64_debug/lib/libtensorflow-microlite.a
 )
 
+target_link_libraries(oeml_enclave openenclave::oeenclave openenclave::oecryptombedtls)

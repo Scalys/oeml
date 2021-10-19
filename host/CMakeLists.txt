@@ -7,7 +7,10 @@ add_custom_command(
     oeml_u.c
     oeml_args.h
   DEPENDS ${CMAKE_SOURCE_DIR}/oeml.edl
-  COMMAND openenclave::oeedger8r --untrusted ${CMAKE_SOURCE_DIR}/oeml.edl  --search-path /opt/openenclave-sdk/sdk/optee/ls-ls1012grapeboard/include --search-path /opt/openenclave-sdk/sdk/optee/ls-ls1012grapeboard/include/openenclave/edl/optee --search-path /opt/openenclave-sdk/sdk/optee/ls-ls1012grapeboard/include/openenclave/edl)
+  COMMAND openenclave::oeedger8r --untrusted ${CMAKE_SOURCE_DIR}/oeml.edl
+  --search-path ${PKG_CONFIG_SYSROOT_DIR}/opt/oe/${OE_OPTEE_PLATFORM}/include
+  --search-path ${PKG_CONFIG_SYSROOT_DIR}/opt/oe/${OE_OPTEE_PLATFORM}/include/openenclave/edl
+  --search-path ${PKG_CONFIG_SYSROOT_DIR}/opt/oe/${OE_OPTEE_PLATFORM}/include/openenclave/edl/optee)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/libs
