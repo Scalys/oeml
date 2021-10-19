@@ -33,6 +33,9 @@ if (OE_OPTEE)
   elseif ("${OE_OPTEE_PLATFORM}" STREQUAL "Grapeboard")
     set(OE_OPTEE_QEMU_ARMV8 OFF)
     set(OE_OPTEE_GRAPEBOARD ON)
+  elseif(DEFINED OE_PACKAGE_OPTEE_PLATFORM)
+    set(OE_OPTEE_QEMU_ARMV8 OFF)
+    set(OE_OPTEE_GRAPEBOARD OFF)
   else ()
     message(
       FATAL_ERROR
