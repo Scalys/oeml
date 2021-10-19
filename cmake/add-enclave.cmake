@@ -86,10 +86,10 @@ macro (add_enclave_optee)
 
   string(REPLACE "gcc" "ld" LINKER ${CMAKE_C_COMPILER})
   set(CMAKE_C_LINK_EXECUTABLE
-	  "${LINKER} <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> <LINK_LIBRARIES> -L/home/haff/poky_sdk/tmp/sysroots/trustbox/usr/lib/aarch64-poky-linux/9.3.0 -lgcc -o <TARGET>"
+      "${LINKER} <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> --start-group <OBJECTS> <LINK_LIBRARIES> -lgcc --end-group -o <TARGET>"
   )
   set(CMAKE_CXX_LINK_EXECUTABLE
-	  "${LINKER} <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> <LINK_LIBRARIES> -L/home/haff/poky_sdk/tmp/sysroots/trustbox/usr/lib/aarch64-poky-linux/9.3.0 -lgcc -o <TARGET>"
+      "${LINKER} <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> --start-group <OBJECTS> <LINK_LIBRARIES> -lgcc --end-group -o <TARGET>"
   )
 
   # Generate linker script from template.
@@ -103,9 +103,14 @@ macro (add_enclave_optee)
     DEPENDS ${OE_PACKAGE_PREFIX}/ta.ld.S
     BYPRODUCTS ${TA_LINKER_SCRIPT})
 
-  # Ask GCC where is libgcc.
-  # TODO: un-hardcode. For some reason poky gcc -print-libgcc-file-name returns only libgcc.a without full path
-  set(LIBGCC_PATH "/opt/poky_sdk/tmp/sysroots/trustbox/usr/lib/aarch64-poky-linux/9.3.0")
+  if( NOT DEFINED LIBGCC_PATH)
+    # Ask GCC where is libgcc.
+    execute_process(
+      COMMAND ${CMAKE_C_COMPILER} -print-libgcc-file-name
+      OUTPUT_VARIABLE LIBGCC_PATH
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    get_filename_component(LIBGCC_PATH ${LIBGCC_PATH} DIRECTORY)
+  endif()
 
   # Set up the target.
   add_executable(${ENCLAVE_TARGET} ${ENCLAVE_SOURCES})
@@ -116,7 +121,7 @@ macro (add_enclave_optee)
   add_dependencies(${ENCLAVE_TARGET} ${ENCLAVE_TARGET}.ld)
   target_include_directories(${ENCLAVE_TARGET}
                              PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-  target_link_libraries(${ENCLAVE_TARGET} openenclave::oeenclave openenclave::oecryptombedtls)
+  target_link_libraries(${ENCLAVE_TARGET} openenclave::oeenclave)
   if (ENCLAVE_CXX)
     target_link_libraries(${ENCLAVE_TARGET} openenclave::oelibcxx)
   endif ()
@@ -127,7 +132,7 @@ macro (add_enclave_optee)
     ${ENCLAVE_TARGET}.stripped.elf
     COMMAND ${OBJCOPY} --strip-unneeded $<TARGET_FILE:${ENCLAVE_TARGET}>
             $<TARGET_FILE_DIR:${ENCLAVE_TARGET}>/${ENCLAVE_UUID}.stripped.elf
-    BYPRODUCTS $<TARGET_FILE_DIR:${ENCLAVE_TARGET}>/${ENCLAVE_UUID}.stripped.elf
+    BYPRODUCTS ${ENCLAVE_TARGET}/${ENCLAVE_UUID}.stripped.elf
   )
   add_dependencies(${ENCLAVE_TARGET}.stripped.elf ${ENCLAVE_TARGET})
 
@@ -142,7 +147,7 @@ macro (add_enclave_optee)
       --version 0 --in
       $<TARGET_FILE_DIR:${ENCLAVE_TARGET}>/${ENCLAVE_UUID}.stripped.elf --out
       $<TARGET_FILE_DIR:${ENCLAVE_TARGET}>/${ENCLAVE_UUID}.ta
-    BYPRODUCTS $<TARGET_FILE_DIR:${ENCLAVE_TARGET}>/${ENCLAVE_UUID}.ta)
+    BYPRODUCTS ${ENCLAVE_TARGET}/${ENCLAVE_UUID}.ta)
   add_dependencies(${ENCLAVE_TARGET}.ta ${ENCLAVE_TARGET}.stripped.elf)
 
   # Set linker options.
