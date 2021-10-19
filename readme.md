@@ -45,9 +45,6 @@ $ chmod +x ./poky-glibc-x86_64-scalys-openenclave-image-aarch64-trustsom-toolcha
 $ MACHINE=trustsom ./poky-glibc-x86_64-scalys-openenclave-image-aarch64-trustsom-toolchain-ext-3.1.10.sh
 ```
 
-~Note:~ docker build environment comes with this toolchain already downloaded and
-pre-installed during build stage.
-
 ## Application bulid
 
 Source the toolchain:
@@ -63,8 +60,15 @@ cd oeml-build
 
 Configure and build the application:
 ```
-cmake ../oeml -DPKG_CONFIG_SYSROOT_DIR="${PKG_CONFIG_SYSROOT_DIR}"  -DOE_TEE=OP-TEE -DOE_PACKAGE_OPTEE_PLATFORM=trustsom -DOE_OPTEE_PLATFORM=trustsom -DCMAKE_TOOLCHAIN_FILE=../oeml/cmake/arm-cross.cmake -DCMAKE_BUILD_TYPE=release -DOE_PACKAGE_PREFIX=${PKG_CONFIG_SYSROOT_DIR}/opt/oe
-make
+$ cmake ../oeml
+  -DPKG_CONFIG_SYSROOT_DIR="${PKG_CONFIG_SYSROOT_DIR}"
+  -DOE_TEE=OP-TEE
+  -DOE_PACKAGE_OPTEE_PLATFORM=trustsom
+  -DOE_OPTEE_PLATFORM=trustsom
+  -DCMAKE_TOOLCHAIN_FILE=../oeml/cmake/arm-cross.cmake
+  -DCMAKE_BUILD_TYPE=release
+  -DOE_PACKAGE_PREFIX=${PKG_CONFIG_SYSROOT_DIR}/opt/oe
+$ make
 ```
 
 The resulting build outputs are located at:
